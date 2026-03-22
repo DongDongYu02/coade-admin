@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keep-Alive 调试助手</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .section { margin: 20px 0; padding: 15px; background: #252526; border-radius: 8px; }
+        .title { color: #4ec9b0; font-size: 18px; margin-bottom: 10px; }
+        .code { background: #1e1e1e; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .warning { color: #dcdcaa; }
+        button { 
+            background: #0e639c; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #1177bb; }
+        pre { margin: 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Keep-Alive 调试助手</h1>
+    
+    <div class="section">
+        <div class="title">步骤 1: 复制以下代码到浏览器控制台</div>
+        <div class="code">
+            <pre>
+// === Keep-Alive 完整诊断 ===
+const route = window.$route || (window.$nuxt?.$route)
+const store = window.useTagsViewStore?.() || window.$nuxt?.$store?.state?.tagsView
+
+console.group('🔍 Keep-Alive 完整诊断')
+
+// 1. 当前路由信息
+console.group('📍 当前路由')
+console.log('route.name:', route?.name)
+console.log('route.path:', route?.path)
+console.log('route.meta:', route?.meta)
+console.log('route.meta.keepAlive:', route?.meta?.keepAlive)
+console.groupEnd()
+
+// 2. 组件信息
+console.group('🎨 组件信息')
+const matched = route?.matched?.[route.matched.length - 1]
+const component = matched?.components?.default
+console.log('组件 __name:', component?.__name)
+console.log('组件 name:', component?.name)
+console.log('defineOptions name:', component?.name)
+console.groupEnd()
+
+// 3. cachedViews
+console.group('📦 缓存状态')
+if (store) {
+    console.log('cachedViews:', store.cachedViews)
+    console.log('visitedViews:', store.visitedViews)
+    const isInCache = store.cachedViews?.includes(route?.name)
+    console.log('当前路由在缓存中:', isInCache ? '✅ 是' : '❌ 否')
+} else {
+    console.error('❌ 找不到 tagsView store')
+}
+console.groupEnd()
+
+// 4. 匹配检查
+console.group('🔄 匹配检查')
+const routeName = route?.name
+const componentName = component?.__name || component?.name
+console.log('路由 name:', routeName)
+console.log('组件 name:', componentName)
+if (routeName === componentName) {
+    console.log('✅ 匹配成功！')
+} else {
+    console.error('❌ 不匹配！这是问题所在！')
+    console.log('需要修改组件的 defineOptions({ name: "' + routeName + '" })')
+}
+console.groupEnd()
+
+console.groupEnd()
+            </pre>
+        </div>
+        <button onclick="copyToClipboard(this.previousElementSibling.textContent)">📋 复制代码</button>
+    </div>
+
+    <div class="section">
+        <div class="title">步骤 2: 观察路由切换日志</div>
+        <p class="warning">在权限管理页面切换到其他页面，再切回来，观察控制台输出：</p>
+        <div class="code">
+            <pre>
+如果缓存生效：
+  💤 deactivated：进入缓存
+  🔄 activated：从缓存激活
+
+如果缓存失效：
+  ❌ unmounted：被销毁了
+  ✅ mounted：首次创建
+            </pre>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="title">步骤 3: 检查后端返回的路由配置</div>
+        <div class="code">
+            <pre>
+// 在控制台运行，查看后端返回的权限数据
+window.$route.matched.forEach((m, i) => {
+    console.log(`Route ${i}:`, {
+        name: m.name,
+        path: m.path,
+        meta: m.meta
+    })
+})
+            </pre>
+        </div>
+        <button onclick="copyToClipboard(this.previousElementSibling.textContent)">📋 复制代码</button>
+    </div>
+
+    <div class="section">
+        <div class="title">常见问题和解决方案</div>
+        <div style="line-height: 1.8;">
+            <p><span class="error">❌ 路由 name 和组件 name 不匹配</span></p>
+            <p style="margin-left: 20px;">→ 确保 defineOptions({ name }) 与路由 name 完全相同</p>
+            
+            <p><span class="error">❌ cachedViews 是空数组</span></p>
+            <p style="margin-left: 20px;">→ 检查 route.meta.keepAlive 是否为 true</p>
+            <p style="margin-left: 20px;">→ 检查 router.afterEach 是否调用了 addView</p>
+            
+            <p><span class="error">❌ 后端返回 meta.keepAlive = 0</span></p>
+            <p style="margin-left: 20px;">→ 需要在后端数据库中设置 keepAlive = 1</p>
+            
+            <p><span class="error">❌ key 使用了 route.fullPath</span></p>
+            <p style="margin-left: 20px;">→ 改为使用 route.name</p>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ 已复制到剪贴板！');
+            });
+        }
+    </script>
+</body>
+</html>

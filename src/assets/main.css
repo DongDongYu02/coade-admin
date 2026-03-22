@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+
+/* ant button 图标强制居中*/
+.ant-btn span svg {
+    display: block !important;
+}
+
+.ant-btn-link {
+    padding: 0 !important;
+}
+
+.ant-avatar-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+html[data-vxe-ui-theme="light"] {
+    /* 字体颜色 */
+    --vxe-ui-font-color: hsl(210, 6%, 21%);
+    --vxe-ui-font-primary-color: #1677FF;
+}
+
+.info-section {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #374151;
+    word-break: break-all;
+}
