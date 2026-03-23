@@ -21,7 +21,7 @@
             <div class="icon-grid">
                 <div v-for="item in filtered" :key="item.name" class="icon-item"
                     :class="{ active: item.name === modelValue }" @click="select(item.name)" :title="item.name">
-                    <component :is="item.comp" class="text-[18px]" />
+                    <component :is="item.comp as any" class="text-[18px]" />
                     <div class="icon-name">{{ item.name }}</div>
                 </div>
             </div>

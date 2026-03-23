@@ -57,7 +57,6 @@
 <script setup lang="ts">
 import { getPermissionSelectionApi } from '@/api/cmt/cmt-permission'
 import { getUserPermissionsApi, grantPermissions, type CmtUserVO } from '@/api/cmt/cmt-user'
-import { type SysDataDictItemSelectionVO } from '@/api/data-dict'
 import { ProfileOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { ref } from 'vue'
