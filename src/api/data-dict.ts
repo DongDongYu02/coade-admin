@@ -46,6 +46,12 @@ export function deleteDataDictItemApi(itemId: string): Promise<ApiResult<void>> 
     return request.delete(`/sys/data-dict/item/${itemId}`);
 }
 
+// 根据code获取字典项
+export function getDictItemsByCodeApi(code:string): Promise<ApiResult<SysDataDictItemSelectionVO[]>> {
+    return request.get(`/sys/data-dict/code/${code}/item`);
+}
+
+
 
 
 
@@ -119,4 +125,24 @@ export interface DataDictVO {
     /** 更新人 */
     updateBy: string;
     updater: string;
+}
+
+
+/**
+ * SysDataDictItemSelectionVO，字典项选择 VO
+ */
+export interface SysDataDictItemSelectionVO {
+    /**
+     * 字典项 ID
+     */
+    id: string;
+    /**
+     * 字典项名称
+     */
+    text: string;
+    /**
+     * 字典项值
+     */
+    value: string;
+    [property: string]: any;
 }

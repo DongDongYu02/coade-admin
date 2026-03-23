@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white px-2 pb-2 h-full flex flex-col min-h-0">
+    <div class="bg-white px-2 pb-2 h-full flex flex-col min-h-0 rounded-sm">
         <div class="table-container flex-1 min-h-0 flex flex-col">
             <div class="table-body flex-1 min-h-0">
                 <vxe-grid ref="gridRef" v-bind="gridOptions" :data="rows" :loading="loading" :style="cssVars"
@@ -31,7 +31,7 @@
             </div>
 
             <div v-if="showPager" class="pager shrink-0 pt-3">
-                <vxe-pager v-model:pageNo="page.pageNo" v-model:pageSize="page.pageSize" :total="page.total"
+                <vxe-pager v-model:pageNo="page.pageNo" v-model:pageSize="page.pageSize" :total="page.total" :current-page="page.pageNo"
                     :size="pagerSize" :background="pagerBackground" :layouts="pagerLayouts"
                     @page-change="onPageChange" />
             </div>
