@@ -54,7 +54,6 @@
 import { deleteUserApi, getUserListApi, resetUserPasswordApi, type UserVO } from "@/api/user";
 import SearchForm, { type SearchFieldItem } from "@/components/SearchForm.vue";
 import TableContainer, { type PageQuery } from '@/components/TableContainer.vue';
-import { FILE_ACCESS_URL } from "@/config/global";
 import { PlusOutlined, UserOutlined } from '@ant-design/icons-vue';
 import { Input, message, Modal, Select } from 'ant-design-vue';
 import { h, ref } from 'vue';
@@ -62,6 +61,7 @@ import type { VxeGridPropTypes } from 'vxe-table';
 import UserDetail from "./components/UserDetail.vue";
 import UserForm from "./components/UserForm.vue";
 
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 interface SearchParams {
   name?: string | null;
   nickname?: string | null;

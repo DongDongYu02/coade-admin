@@ -114,11 +114,10 @@ import type { Rule } from 'ant-design-vue/es/form';
 import { computed, reactive, ref } from 'vue';
 
 import { changePasswordApi, logoutApi } from '@/api/auth';
-import { FILE_ACCESS_URL } from '@/config/global';
 import router from "@/router";
 import { resolveIcon, type BreadcrumbItem } from '@/router/dynamic';
 import { useAuthStore } from "@/stores/auth";
-
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const authStore = useAuthStore()
 
 // 用户信息

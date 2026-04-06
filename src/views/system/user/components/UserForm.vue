@@ -59,7 +59,7 @@ import { uploadFileApi } from '@/api/file'
 import { getRoleSelectListApi } from '@/api/role'
 import { addUserApi, updateUserApi, type UserForm, type UserVO } from '@/api/user'
 import DrawerForm from '@/components/DrawerForm.vue'
-import { AES_KEY, FILE_ACCESS_URL } from '@/config/global'
+import { AES_KEY } from '@/config/global'
 import { aesCbcEncrypt } from '@/utils/AesGcmUtil'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { message, type UploadFile, type UploadProps } from 'ant-design-vue'
@@ -69,7 +69,7 @@ import { computed, ref, watch } from 'vue'
 const emit = defineEmits<{
   (e: 'success'): void
 }>()
-
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const drawerFormRef = ref<{ formData: UserForm; setLoading: (v: boolean) => void } | null>(null)
 const open = ref(false)
 const isEdit = ref(false)

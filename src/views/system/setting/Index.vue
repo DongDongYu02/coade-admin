@@ -78,7 +78,6 @@ import {
     saveSystemSettingApi,
     type ConfigDTO
 } from '@/api/setting'
-import { FILE_ACCESS_URL } from '@/config/global'
 import { useAppStore } from '@/stores/app'
 import {
     AppstoreOutlined,
@@ -90,6 +89,7 @@ import {
 import { message, Upload, type FormInstance, type UploadFile, type UploadProps } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import { onMounted, reactive, ref } from 'vue'
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const appStore = useAppStore()
 const formRef = ref<FormInstance>()
 const loading = ref(false)

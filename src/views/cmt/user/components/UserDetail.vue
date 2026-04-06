@@ -74,12 +74,12 @@
 
 <script setup lang="ts">
 import { getUserDetailApi, type UserVO } from '@/api/user'
-import { FILE_ACCESS_URL } from '@/config/global'
 import {
     ProfileOutlined
 } from '@ant-design/icons-vue'
 import { ref } from 'vue'
 
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const open = ref(false)
 const loading = ref(false)
 const userInfo = ref<UserVO | null>(null)

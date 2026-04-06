@@ -1,5 +1,5 @@
 import { getUserPermissionsApi } from '@/api/auth'
-import { DEFAULT_LOGO, FILE_ACCESS_URL } from '@/config/global'
+import { DEFAULT_LOGO } from '@/config/global'
 import BasicLayout from '@/layouts/BasicLayout.vue'
 import NProgress from '@/plugins/nprogress'
 import { buildRoutesFromMenus } from '@/router/dynamic'
@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const WHITE_LIST = ['/login']
 
 /** ✅ 常量路由：只放登录、redirect、壳、基础页面、404 */
@@ -127,20 +127,20 @@ router.afterEach((to) => {
   const tagsViewStore = useTagsViewStore()
   const appStore = useAppStore()
   console.log(to);
-  
+
   if (!to.meta?.hideTab) tagsViewStore.addView(to)
-  
+
   // 更新浏览器标签页标题：菜单名称 - 系统名称
   const pageTitle = to.meta?.title as string
   const systemName = appStore.systemName || '管理后台'
   document.title = pageTitle ? `${pageTitle} - ${systemName}` : systemName
-  
+
   // 更新浏览器标签页图标
   const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
   if (favicon) {
     favicon.href = appStore.systemLogo ? FILE_ACCESS_URL + appStore.systemLogo : DEFAULT_LOGO
   }
-  
+
   NProgress.done()
 })
 

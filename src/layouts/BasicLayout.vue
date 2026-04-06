@@ -21,8 +21,8 @@ import { useAppStore } from '@/stores/app'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { FILE_ACCESS_URL ,DEFAULT_LOGO, DEFAULT_SYSTEM_NAME } from '@/config/global'
-
+import { DEFAULT_LOGO, DEFAULT_SYSTEM_NAME } from '@/config/global'
+const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
 const appStore = useAppStore()
 const router = useRouter()
 const route = useRoute()
