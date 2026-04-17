@@ -71,7 +71,6 @@ const props = defineProps({
         default: () => ['Total', 'Sizes', 'Home', 'PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'End']
     },
 
-    /** 受控分页（可选） */
     pageNo: { type: Number, default: 1 },
     pageSize: { type: Number, default: 10 },
 
@@ -219,8 +218,14 @@ const onPageChange = ({ currentPage, pageSize }: { currentPage: number; pageSize
     reload()
 }
 
+const resetPager = () => {
+    page.pageNo = 1
+    page.pageSize = props.pageSize
+}
+
 defineExpose({
     reload,
+    resetPager,
     getSelectedRecords,
     gridRef
 })

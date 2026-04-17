@@ -65,7 +65,7 @@ import { getSystemSettingApi } from '@/api/setting'
 import { useAppStore } from '@/stores/app'
 import { DEFAULT_LOGO, DEFAULT_SYSTEM_NAME } from '@/config/global'
 
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()

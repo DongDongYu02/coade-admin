@@ -79,7 +79,7 @@ import {
 } from '@ant-design/icons-vue'
 import { ref } from 'vue'
 
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const open = ref(false)
 const loading = ref(false)
 const userInfo = ref<UserVO | null>(null)

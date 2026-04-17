@@ -3,8 +3,8 @@
     <SearchForm v-model="searchParams" :items="searchFieldItems" :loading="searchLoading" @search="onSearch"
       @reset="onReset">
     </SearchForm>
-    <TableContainer ref="tableRef" :columns="columns" :request="getList" :showPager="true" showActionColumn :page-size="50"
-      :action-column-props="{ width: 220 }">
+    <TableContainer ref="tableRef" :columns="columns" :request="getList" :showPager="true" showActionColumn
+      :page-size="50" :action-column-props="{ width: 220 }">
       <template #toolbar-left>
         <span class="mr-1 pl-1 text-[15px] font-bold">用户列表</span>
       </template>
@@ -49,10 +49,12 @@ const searchFieldItems: SearchFieldItem[] = [
 const syncLoading = ref(false)
 const searchLoading = ref(false);
 const onSearch = async () => {
+  tableRef.value?.resetPager()
   tableRef.value?.reload()
 }
 const onReset = async () => {
   searchParams.value = {}
+  tableRef.value?.resetPager()
   tableRef.value?.reload()
 }
 
@@ -61,12 +63,12 @@ const onSyncData = async () => {
   Modal.confirm({
     title: '确认开始同步蓝凌的职员数据?',
     icon: createVNode(ExclamationCircleOutlined),
-    okText:'确认',
-    cancelText:'取消',
+    okText: '确认',
+    cancelText: '取消',
     async onOk() {
       await syncFromEkpApi()
       message.success('同步成功！')
-      onReset() 
+      onReset()
     }
   });
 

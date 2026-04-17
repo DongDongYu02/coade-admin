@@ -61,7 +61,7 @@ import type { VxeGridPropTypes } from 'vxe-table';
 import UserDetail from "./components/UserDetail.vue";
 import UserForm from "./components/UserForm.vue";
 
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 interface SearchParams {
   name?: string | null;
   nickname?: string | null;

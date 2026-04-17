@@ -117,7 +117,7 @@ import { changePasswordApi, logoutApi } from '@/api/auth';
 import router from "@/router";
 import { resolveIcon, type BreadcrumbItem } from '@/router/dynamic';
 import { useAuthStore } from "@/stores/auth";
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const authStore = useAuthStore()
 
 // 用户信息

@@ -1,8 +1,8 @@
 <template>
     <div class="bg-white p-4 rounded-sm">
         <a-form ref="formRef" class="search-form" :model="innerModel" :layout="layout" :colon="colon"
-            :label-align="labelAlign" :label-col="mergedLabelCol" :wrapper-col="mergedWrapperCol">
-            <div class="search-fields">
+            :label-align="labelAlign" :label-col="mergedLabelCol" :wrapper-col="mergedWrapperCol" @keyup.enter="onSearch">
+            <div ref="searchFieldsRef" class="search-fields">
                 <!-- 字段区 -->
                 <template v-for="item in displayItems" :key="item.field">
                     <a-form-item :label="item.label" :name="item.field" class="search-field-item" v-bind="item.formItemProps">
@@ -15,13 +15,13 @@
 
                 <!-- 操作区 -->
                 <a-form-item class="action-item">
-                    <div class="actions">
+                    <div ref="actionsRef" class="actions">
                         <slot name="extraActions" :model="innerModel" />
 
                         <a-button @click="onReset">重置</a-button>
                         <a-button type="primary" :loading="loading" @click="onSearch">搜索</a-button>
 
-                        <a v-if="showToggle" class="toggle" @click="toggleExpand">
+                        <a v-if="showToggle" ref="toggleRef" class="toggle" @click="toggleExpand">
                             {{ expanded ? '收起' : '展开' }}
                             <component :is="expanded ? UpOutlined : DownOutlined" />
                         </a>
@@ -34,8 +34,8 @@
 
 <script setup lang="ts">
 import { DownOutlined, UpOutlined } from '@ant-design/icons-vue'
-import { Grid, type FormInstance } from 'ant-design-vue'
-import { computed, reactive, ref, watch } from 'vue'
+import type { FormInstance } from 'ant-design-vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 export interface SearchFieldItem {
     label: string
@@ -78,6 +78,12 @@ const emit = defineEmits<{
     (e: 'reset', v: Record<string, any>): void
 }>()
 
+const SEARCH_FIELD_WIDTH = 350
+const SEARCH_FIELD_GAP = 24
+const ACTION_GAP = 8
+const DEFAULT_ACTION_WIDTH = 160
+const DEFAULT_TOGGLE_WIDTH = 44
+
 /** v-model 动态参数：默认 value */
 const resolveModelProp = (item: SearchFieldItem) => item.modelProp || 'value'
 
@@ -95,30 +101,65 @@ watch(
     { deep: true }
 )
 
-const screens = Grid.useBreakpoint()
-
-/** 基础列数：lg=3, md=2, sm/xs=1 */
-const baseCols = computed(() => {
-    if (screens.value.lg) return 3
-    if (screens.value.md) return 2
-    return 1
-})
-
 const expanded = ref(props.defaultExpanded)
+const collapsedCount = ref(props.items.length)
+const searchFieldsRef = ref<HTMLDivElement>()
+const actionsRef = ref<HTMLDivElement>()
+const toggleRef = ref<HTMLElement>()
+let resizeObserver: ResizeObserver | null = null
+const handleWindowResize = () => {
+    updateCollapsedCount()
+}
 
+const getToggleReservedWidth = () => {
+    const toggleWidth = toggleRef.value?.offsetWidth || DEFAULT_TOGGLE_WIDTH
+    return toggleWidth + ACTION_GAP
+}
 
+const getBaseActionWidth = () => {
+    const actionsWidth = actionsRef.value?.offsetWidth || DEFAULT_ACTION_WIDTH
+    const toggleWidth = toggleRef.value?.offsetWidth || 0
+    return toggleWidth > 0 ? Math.max(actionsWidth - toggleWidth - ACTION_GAP, DEFAULT_ACTION_WIDTH) : actionsWidth
+}
 
+const calculateCollapsedCount = (actionWidth: number) => {
+    const containerWidth = searchFieldsRef.value?.clientWidth || 0
+    if (!containerWidth) return props.items.length
 
-/** 收起：只显示“第一行能放下的字段数”（用 baseCols，而不是 layoutCols） */
+    let availableWidth = containerWidth - actionWidth
+    let count = 0
+
+    while (count < props.items.length) {
+        const requiredWidth = SEARCH_FIELD_WIDTH + (count > 0 ? SEARCH_FIELD_GAP : 0)
+        if (availableWidth < requiredWidth) break
+
+        availableWidth -= requiredWidth
+        count += 1
+    }
+
+    return Math.max(count, 1)
+}
+
+const updateCollapsedCount = () => {
+    const baseActionWidth = getBaseActionWidth()
+    const visibleCountWithoutToggle = calculateCollapsedCount(baseActionWidth)
+
+    if (props.items.length <= visibleCountWithoutToggle) {
+        collapsedCount.value = props.items.length
+        return
+    }
+
+    collapsedCount.value = calculateCollapsedCount(baseActionWidth + getToggleReservedWidth())
+}
+
+/** 收起：只显示“第一行能放下的字段数” */
 const displayItems = computed(() => {
-    if (expanded.value) return props.items
-    return props.items.slice(0, baseCols.value)
+    if (expanded.value || !showToggle.value) return props.items
+    return props.items.slice(0, collapsedCount.value)
 })
 
 /** 是否显示 展开/收起 */
-const showToggle = computed(() => props.items.length > baseCols.value)
-
-
+const showToggle = computed(() => props.items.length > collapsedCount.value)
 
 const mergedLabelCol = computed(() => ({
     style: { width: `${props.labelWidth}px` },
@@ -137,6 +178,42 @@ const onReset = () => {
 }
 
 const toggleExpand = () => (expanded.value = !expanded.value)
+
+watch(
+    () => props.items.length,
+    async () => {
+        await nextTick()
+        updateCollapsedCount()
+    },
+    { immediate: true }
+)
+
+watch(
+    showToggle,
+    async () => {
+        await nextTick()
+        updateCollapsedCount()
+    }
+)
+
+onMounted(async () => {
+    await nextTick()
+    updateCollapsedCount()
+
+    if (typeof ResizeObserver === 'undefined' || !searchFieldsRef.value) return
+
+    resizeObserver = new ResizeObserver(() => {
+        updateCollapsedCount()
+    })
+
+    resizeObserver.observe(searchFieldsRef.value)
+    window.addEventListener('resize', handleWindowResize)
+})
+
+onBeforeUnmount(() => {
+    resizeObserver?.disconnect()
+    window.removeEventListener('resize', handleWindowResize)
+})
 </script>
 
 <style scoped>
@@ -162,7 +239,8 @@ const toggleExpand = () => (expanded.value = !expanded.value)
 }
 
 .action-item {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    margin-left: auto;
     min-width: fit-content;
 }
 
@@ -171,8 +249,7 @@ const toggleExpand = () => (expanded.value = !expanded.value)
 }
 
 .actions {
-    display: flex;
-    justify-content: flex-end;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     flex-wrap: nowrap;

@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const WHITE_LIST = ['/login']
 
 /** ✅ 常量路由：只放登录、redirect、壳、基础页面、404 */

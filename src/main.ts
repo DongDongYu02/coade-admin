@@ -4,6 +4,8 @@ import { createPinia } from 'pinia'
 import piniaPersistedstate from 'pinia-plugin-persistedstate'
 import { router } from './router'
 import { setupPermissionDirective } from './utils/permission'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 import './assets/main.css'
 import 'ant-design-vue/dist/reset.css'
 
@@ -18,6 +20,8 @@ import {
     VxeToolbar
 } from 'vxe-table'
 import 'vxe-table/lib/style.css'
+
+dayjs.locale('zh-cn')
 
 const app = createApp(App)
 const pinia = createPinia()

@@ -65,7 +65,7 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { message, type UploadFile, type UploadProps } from 'ant-design-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import { computed, ref, watch } from 'vue'
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const emit = defineEmits<{
   (e: 'success'): void
 }>()

@@ -69,7 +69,7 @@ import { computed, ref, watch } from 'vue'
 const emit = defineEmits<{
   (e: 'success'): void
 }>()
-const FILE_ACCESS_URL = import.meta.env.VITE_FILE_ACCESS_URL
+const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX
 const drawerFormRef = ref<{ formData: UserForm; setLoading: (v: boolean) => void } | null>(null)
 const open = ref(false)
 const isEdit = ref(false)
