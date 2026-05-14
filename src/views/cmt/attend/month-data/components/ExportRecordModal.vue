@@ -27,7 +27,7 @@
         </template>
 
         <template v-else-if="column.key === 'message'">
-          <span>{{ record.message || '-' }}</span>
+          <span>{{ record.message || "-" }}</span>
         </template>
 
         <template v-else-if="column.key === 'action'">
@@ -50,12 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Cmt6sProblemExportRecordVO } from "@/api/cmt/cmt-6s";
+import type { CmtAttendExportRecordVO } from "@/api/cmt/cmt-attend";
 import { computed } from "vue";
 
 defineProps<{
   open: boolean;
-  records: Cmt6sProblemExportRecordVO[];
+  records: CmtAttendExportRecordVO[];
   loading?: boolean;
 }>();
 
@@ -126,12 +126,10 @@ const resolveDownloadUrl = (path?: string) => {
   return /^https?:\/\//.test(path) ? path : FILE_ACCESS_URL + path;
 };
 
-const onDownload = (record: Cmt6sProblemExportRecordVO) => {
+const onDownload = (record: CmtAttendExportRecordVO) => {
   const downloadUrl = resolveDownloadUrl(record.path);
   if (!downloadUrl) return;
 
   window.open(downloadUrl, "_blank");
 };
 </script>
-
-<style scoped></style>

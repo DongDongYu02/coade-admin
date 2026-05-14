@@ -8,21 +8,40 @@
         </div>
         <div class="info-grid">
           <div class="info-item">
+            <span class="info-label">编号</span>
+            <span class="info-value">{{ record?.serialNo || "-" }}</span>
+          </div>
+          <div class="info-item">
             <span class="info-label">标题</span>
-            <span class="info-value">{{ record?.title || "-" }}</span>
+            <span class="info-value title-value">
+              <ThunderboltFilled v-if="record?.isUrgent === 1" class="urgent-icon" />
+              <span>{{ record?.title || "-" }}</span>
+            </span>
           </div>
           <div class="info-item">
             <span class="info-label">状态</span>
-            <div class="status-tags">
-              <a-tag :color="STATUS_COLOR_MAP[record?.status ?? -1] || 'default'">
+            <span class="status-value">
+              <a-tooltip v-if="record && isOverdue(record)" :title="OVERDUE_TOOLTIP">
+                <a-tag :color="OVERDUE_COLOR">
+                  {{ STATUS_TEXT_MAP[record?.status ?? -1] || "-" }}
+                </a-tag>
+              </a-tooltip>
+              <a-tag v-else :color="STATUS_COLOR_MAP[record?.status ?? -1] || 'default'">
                 {{ STATUS_TEXT_MAP[record?.status ?? -1] || "-" }}
               </a-tag>
-              <a-tag v-if="record && isOverdue(record)" color="error">已逾期</a-tag>
-            </div>
+            </span>
           </div>
           <div class="info-item">
             <span class="info-label">所属系统</span>
-            <span class="info-value">{{ formatSystemType(record) }}</span>
+            <span class="system-type-value">
+              <a-tag
+                v-if="record?.systemType !== null && record?.systemType !== undefined"
+                :color="getSystemTypeColor(record?.systemType)"
+              >
+                {{ formatSystemType(record) }}
+              </a-tag>
+              <span v-else class="info-value">-</span>
+            </span>
           </div>
           <div class="info-item">
             <span class="info-label">提出部门</span>
@@ -47,6 +66,14 @@
           <div class="info-item">
             <span class="info-label">实际完成时间</span>
             <span class="info-value">{{ record?.actualFinishTime || "-" }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">开发耗时</span>
+            <span class="info-value">{{ record?.devCostTime || "-" }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">总耗时</span>
+            <span class="info-value">{{ record?.totalCostTime || "-" }}</span>
           </div>
         </div>
       </div>
@@ -86,21 +113,13 @@
           <div class="info-item full-span">
             <span class="info-label">附件</span>
             <div v-if="record?.attachments?.length" class="attachment-list">
-              <div
-                v-for="attachment in record.attachments"
-                :key="attachment.id"
-                class="attachment-item"
-              >
+              <div v-for="attachment in record.attachments" :key="attachment.id" class="attachment-item">
                 <div class="attachment-main">
                   <span class="info-value attachment-name">
                     {{ attachment.originName || attachment.name || "-" }}
                   </span>
-                  <span class="attachment-extra">
-                    {{ attachment.mime || "未知类型" }}
-                  </span>
-                  <span class="attachment-extra">
-                    {{ formatFileSize(attachment.size) }}
-                  </span>
+                  <span class="attachment-extra">{{ attachment.mime || "未知类型" }}</span>
+                  <span class="attachment-extra">{{ formatFileSize(attachment.size) }}</span>
                 </div>
                 <a
                   v-if="resolveAttachmentUrl(attachment)"
@@ -163,30 +182,24 @@ import {
   FileTextOutlined,
   MessageOutlined,
   PaperClipOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  ThunderboltFilled
 } from "@ant-design/icons-vue";
 import { ref, watch } from "vue";
-import { isIssueDemandOverdue } from "../../utils";
+import {
+  ISSUE_DEMAND_OVERDUE_COLOR,
+  ISSUE_DEMAND_OVERDUE_TOOLTIP,
+  ISSUE_DEMAND_STATUS_COLOR_MAP,
+  ISSUE_DEMAND_STATUS_TEXT_MAP,
+  getIssueDemandSystemTypeColor,
+  isIssueDemandOverdue
+} from "../../utils";
 
 const FILE_ACCESS_URL = window.location.origin + import.meta.env.VITE_FILE_ACCESS_PATH_PREFIX;
-
-const STATUS_TEXT_MAP: Record<number, string> = {
-  0: "待处理",
-  1: "评估中",
-  2: "开发中",
-  3: "已完成",
-  4: "已驳回",
-  5: "已关闭"
-};
-
-const STATUS_COLOR_MAP: Record<number, string> = {
-  0: "default",
-  1: "processing",
-  2: "blue",
-  3: "success",
-  4: "warning",
-  5: "error"
-};
+const STATUS_TEXT_MAP = ISSUE_DEMAND_STATUS_TEXT_MAP;
+const STATUS_COLOR_MAP = ISSUE_DEMAND_STATUS_COLOR_MAP;
+const OVERDUE_COLOR = ISSUE_DEMAND_OVERDUE_COLOR;
+const OVERDUE_TOOLTIP = ISSUE_DEMAND_OVERDUE_TOOLTIP;
 
 const props = defineProps<{
   open: boolean;
@@ -203,9 +216,9 @@ const record = ref<IssueDemandDetailVO | null>(null);
 const systemTypeOptions = ref<SysDataDictItemSelectionVO[]>([]);
 const systemTypeLoaded = ref(false);
 
-const isOverdue = (data: IssueDemandDetailVO) => {
-  return isIssueDemandOverdue(data);
-};
+const isOverdue = (data: IssueDemandDetailVO) => isIssueDemandOverdue(data);
+
+const getSystemTypeColor = (value?: number | string | null) => getIssueDemandSystemTypeColor(value);
 
 const loadDetail = async (id: string) => {
   loading.value = true;
@@ -225,7 +238,7 @@ const loadSystemTypeOptions = async () => {
     systemTypeOptions.value = resp.data || [];
     systemTypeLoaded.value = true;
   } catch (error) {
-    console.error("加载所属系统字典失败:", error);
+    console.error("加载所属系统字典失败", error);
   }
 };
 
@@ -292,17 +305,42 @@ const formatFileSize = (size?: number) => {
   grid-column: 1 / -1;
 }
 
+.title-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.urgent-icon {
+  flex: 0 0 auto;
+  color: #ff4d4f;
+  font-size: 16px;
+}
+
+.status-value {
+  display: inline-flex;
+  align-self: flex-start;
+  width: fit-content;
+}
+
+.status-value :deep(.ant-tag) {
+  margin-inline-end: 0;
+}
+
+.system-type-value {
+  display: inline-flex;
+  align-self: flex-start;
+  width: fit-content;
+}
+
+.system-type-value :deep(.ant-tag) {
+  margin-inline-end: 0;
+}
+
 .multiline-text {
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.7;
-}
-
-.status-tags {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
 }
 
 .attachment-list {

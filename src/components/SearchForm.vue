@@ -2,7 +2,7 @@
     <div class="bg-white p-4 rounded-sm">
         <a-form ref="formRef" class="search-form" :model="innerModel" :layout="layout" :colon="colon"
             :label-align="labelAlign" :label-col="mergedLabelCol" :wrapper-col="mergedWrapperCol" @keyup.enter="onSearch">
-            <div ref="searchFieldsRef" class="search-fields">
+            <div ref="searchFieldsRef" class="search-fields" :style="searchFieldsStyle">
                 <!-- 字段区 -->
                 <template v-for="item in displayItems" :key="item.field">
                     <a-form-item :label="item.label" :name="item.field" class="search-field-item" v-bind="item.formItemProps">
@@ -19,7 +19,7 @@
                         <slot name="extraActions" :model="innerModel" />
 
                         <a-button @click="onReset">重置</a-button>
-                        <a-button type="primary" :loading="loading" @click="onSearch">搜索</a-button>
+                        <a-button type="primary" :loading="loading" @click="onSearch">查询</a-button>
 
                         <a v-if="showToggle" ref="toggleRef" class="toggle" @click="toggleExpand">
                             {{ expanded ? '收起' : '展开' }}
@@ -58,6 +58,8 @@ interface Props {
     colon?: boolean
     labelAlign?: 'left' | 'right'
     labelWidth?: number
+    /** 单个筛选项宽度，不传时保持默认宽度 */
+    fieldWidth?: number
 
     gutter?: [number, number]
 }
@@ -87,11 +89,25 @@ const DEFAULT_TOGGLE_WIDTH = 44
 /** v-model 动态参数：默认 value */
 const resolveModelProp = (item: SearchFieldItem) => item.modelProp || 'value'
 
+const mergedFieldWidth = computed(() => props.fieldWidth || SEARCH_FIELD_WIDTH)
+
+const searchFieldsStyle = computed(() => ({
+    '--search-field-width': `${mergedFieldWidth.value}px`,
+    '--search-field-control-width': props.fieldWidth ? '100%' : '160px',
+}))
+
 const innerModel = reactive<Record<string, any>>({ ...props.modelValue })
 
 watch(
     () => props.modelValue,
-    (v) => Object.assign(innerModel, v),
+    (v) => {
+        Object.keys(innerModel).forEach((key) => {
+            if (!Object.prototype.hasOwnProperty.call(v, key)) {
+                delete innerModel[key]
+            }
+        })
+        Object.assign(innerModel, v)
+    },
     { deep: true }
 )
 
@@ -130,7 +146,7 @@ const calculateCollapsedCount = (actionWidth: number) => {
     let count = 0
 
     while (count < props.items.length) {
-        const requiredWidth = SEARCH_FIELD_WIDTH + (count > 0 ? SEARCH_FIELD_GAP : 0)
+        const requiredWidth = mergedFieldWidth.value + (count > 0 ? SEARCH_FIELD_GAP : 0)
         if (availableWidth < requiredWidth) break
 
         availableWidth -= requiredWidth
@@ -230,12 +246,12 @@ onBeforeUnmount(() => {
 
 .search-field-item {
     flex: 0 0 auto;
-    min-width: 350px;
-    max-width: 350px;
+    min-width: var(--search-field-width);
+    max-width: var(--search-field-width);
 }
 
 .search-field-item :deep(.ant-form-item-control-input-content) {
-    width: 160px;
+    width: var(--search-field-control-width);
 }
 
 .action-item {

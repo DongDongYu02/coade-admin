@@ -39,6 +39,7 @@ export interface Cmt6sReviewVO {
   deptName?: string;
   responsiblePersonId?: string;
   responsiblePersonName?: string;
+  creator?: string;
   status: number;
   createTime: string;
 }
@@ -60,6 +61,7 @@ export interface Cmt6sReviewProblemVO {
   responsiblePersonName?: string;
   deptId?: string;
   deptName?: string;
+  creator?: string;
   description?: string;
   suggestion?: string;
   problemImage?: string;

@@ -193,7 +193,8 @@ const columns: VxeGridPropTypes.Columns<any> = [
   { field: "responsiblePersonName", title: "负责人", width: 140 },
   { field: "assisterName", title: "协助人", width: 140 },
   { field: "deadline", title: "截止时间", width: 180 },
-  { field: "reviewTitle", title: "整改记录", minWidth: 240 },
+  { field: "reviewTitle", title: "整改记录", minWidth: 200 },
+  { field: "creator", title: "提交人", width: 140 },
   { field: "status", title: "状态", minWidth: 120, slots: { default: "status" } }
 ];
 
