@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <div class="info-section">
+      <div v-if="showResultFeedback" class="info-section">
         <div class="section-title">
           <MessageOutlined />
           <span>结果反馈</span>
@@ -100,6 +100,34 @@
           <div class="info-item full-span">
             <span class="info-label">反馈</span>
             <div class="info-value multiline-text">{{ record?.resultFeedback || "-" }}</div>
+          </div>
+          <div class="info-item full-span">
+            <span class="info-label">反馈附件</span>
+            <div v-if="record?.feedbackAttachments?.length" class="attachment-list">
+              <div
+                v-for="attachment in record.feedbackAttachments"
+                :key="attachment.id"
+                class="attachment-item"
+              >
+                <div class="attachment-main">
+                  <span class="info-value attachment-name">
+                    {{ attachment.originName || attachment.name || "-" }}
+                  </span>
+                  <span class="attachment-extra">{{ attachment.mime || "未知类型" }}</span>
+                  <span class="attachment-extra">{{ formatFileSize(attachment.size) }}</span>
+                </div>
+                <a
+                  v-if="resolveAttachmentUrl(attachment)"
+                  :href="resolveAttachmentUrl(attachment)"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  查看
+                </a>
+                <span v-else class="text-placeholder">-</span>
+              </div>
+            </div>
+            <span v-else class="text-placeholder">暂无附件</span>
           </div>
         </div>
       </div>
@@ -185,7 +213,7 @@ import {
   ProfileOutlined,
   ThunderboltFilled
 } from "@ant-design/icons-vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   ISSUE_DEMAND_OVERDUE_COLOR,
   ISSUE_DEMAND_OVERDUE_TOOLTIP,
@@ -215,6 +243,7 @@ const loading = ref(false);
 const record = ref<IssueDemandDetailVO | null>(null);
 const systemTypeOptions = ref<SysDataDictItemSelectionVO[]>([]);
 const systemTypeLoaded = ref(false);
+const showResultFeedback = computed(() => [3, 6].includes(record.value?.status ?? -1));
 
 const isOverdue = (data: IssueDemandDetailVO) => isIssueDemandOverdue(data);
 

@@ -197,4 +197,5 @@ export interface IssueDemandDetailVO {
   createClient?: string;
   creator?: string;
   attachments?: AttachmentVO[];
+  feedbackAttachments?: AttachmentVO[];
 }
